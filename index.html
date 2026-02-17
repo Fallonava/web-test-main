@@ -9,6 +9,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
+        /* Google Fonts Material Icons Round */
+        @font-face {
+            font-family: 'Material Icons Round';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/materialiconsround/v108/LDItaoyNOFWtIhtsVmb28k8GoldenAge.woff2) format('woff2');
+        }
+
+        .material-icons-round {
+            font-family: 'Material Icons Round';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+
+            /* Support for all WebKit browsers. */
+            -webkit-font-smoothing: antialiased;
+            /* Support for Safari and Chrome. */
+            text-rendering: optimizeLegibility;
+
+            /* Support for Firefox. */
+            -moz-osx-font-smoothing: grayscale;
+
+            /* Support for IE. */
+            font-feature-settings: 'liga';
+        }
+
         :root {
             /* Semantic Base Colors (Default Dark) */
             --bg-body: #000000;
@@ -1399,10 +1432,14 @@
                 height: 5px;
             }
 
-            /* --- DYNAMIC ISLAND: Proporsional --- */
+            /* --- DYNAMIC ISLAND: Proporsional & Optimized --- */
             .dynamic-island {
                 height: 48px;
                 top: 12px;
+                /* Optimize for weak GPU */
+                will-change: transform, width, height, border-radius;
+                /* Reduce box-shadow for performance */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
                 /* #5: Animasi Liquid Squircle & Smooth Width */
                 transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
                     width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -1438,10 +1475,10 @@
                 font-size: 11px;
             }
 
-            /* --- SCROLL MASK: Fade lebih pendek --- */
+            /* --- SCROLL MASK: Disabled for performance on Low-End TV --- */
             .scroll-mask {
-                mask-image: linear-gradient(to bottom, transparent, black 8px, black calc(100% - 4px), transparent);
-                -webkit-mask-image: linear-gradient(to bottom, transparent, black 8px, black calc(100% - 4px), transparent);
+                mask-image: none !important;
+                -webkit-mask-image: none !important;
             }
 
             /* --- SIDEBAR SECTION HEADER: Kompak --- */
@@ -1975,7 +2012,11 @@
                 $('diMsg').textContent = item.msg;
                 // 3. Set Icon
                 const iconEl = $('diIcon');
-                if (iconEl) iconEl.textContent = item.icon || 'info';
+                if (iconEl) {
+                    iconEl.textContent = item.icon || 'info';
+                    // Fix: Reset class to remove spinner
+                    iconEl.className = 'material-icons-round di-icon';
+                }
 
                 // 4. Expand Animation
                 this.el.classList.add('expanded');
@@ -2077,7 +2118,7 @@
 
             updateTheme() {
                 const h = new Date().getHours();
-                const isLight = h >= 6 && h < 20;
+                const isLight = h >= 6 && h < 16;
                 document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
             },
 
