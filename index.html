@@ -2018,10 +2018,15 @@
                     iconEl.className = 'material-icons-round di-icon';
                 }
 
-                // 4. Expand Animation
-                this.el.classList.add('expanded');
+                // Force layout recalc to restart transitions cleanly
+                void this.el.offsetWidth;
 
-                // 4. Wait Notification Duration
+                // 4. Expand Animation (in next frame for smoothness)
+                requestAnimationFrame(() => {
+                    this.el.classList.add('expanded');
+                });
+
+                // 5. Wait Notification Duration
                 await new Promise(r => setTimeout(r, item.duration));
 
                 // 5. Collapse Animation
