@@ -1930,13 +1930,34 @@
                 // Tampilkan info idle setiap 3 menit (180s)
                 setInterval(() => {
                     if (this._queue.length === 0 && !this._isAnimating) {
-                        this.show('Info', this.getIdleMessage(), 'idle', 6000);
+                        this.show('Info', this.getIdleMessage(), 'idle', 'tips_and_updates', 6000);
                     }
                 }, 180000);
             },
 
-            async show(title, msg, type = 'info', duration = 8000) {
-                this._queue.push({ title, msg, type, duration });
+            // show(title, msg, type, [icon], [duration])
+            async show(title, msg, type = 'info', arg4 = null, arg5 = null) {
+                let duration = 8000;
+                let icon = null;
+
+                // Overload handling
+                if (typeof arg4 === 'number') {
+                    duration = arg4;
+                } else if (typeof arg4 === 'string') {
+                    icon = arg4;
+                    if (typeof arg5 === 'number') duration = arg5;
+                }
+
+                // Default icons
+                if (!icon) {
+                    if (type === 'success') icon = 'check_circle';
+                    else if (type === 'warn') icon = 'warning';
+                    else if (type === 'error') icon = 'error';
+                    else if (type === 'info') icon = 'info';
+                    else if (type === 'idle') icon = 'notifications';
+                }
+
+                this._queue.push({ title, msg, type, icon, duration });
                 this.processQueue();
             },
 
@@ -1952,8 +1973,11 @@
                 // 2. Set Content
                 $('diTitle').textContent = item.title;
                 $('diMsg').textContent = item.msg;
+                // 3. Set Icon
+                const iconEl = $('diIcon');
+                if (iconEl) iconEl.textContent = item.icon || 'info';
 
-                // 3. Expand Animation
+                // 4. Expand Animation
                 this.el.classList.add('expanded');
 
                 // 4. Wait Notification Duration
@@ -2112,24 +2136,24 @@
                     if (prev) {
                         // 1. Time-based Start (Status same/diff, but became active by time)
                         if (!prev.active && isNowActive) {
-                            Island.show('Praktek Dimulai', `${name} Mulai Melayani Pasien`, 'success', 8000);
+                            Island.show('Praktek Dimulai', `${name} Mulai Melayani Pasien`, 'success', 'door_front', 8000);
                             return; // Prioritize start notification
                         }
 
                         // 2. Status String Change Detection
                         if (prev.status !== st) {
                             if (st.includes('PENUH')) {
-                                Island.show('Kuota Penuh', `Pendaftaran ${name} Ditutup`, 'warn', 8000);
+                                Island.show('Kuota Penuh', `Pendaftaran ${name} Ditutup`, 'warn', 'groups', 8000);
                             } else if (st.includes('SELESAI')) {
-                                Island.show('Praktek Selesai', `${name} Telah Selesai Praktek`, 'info', 8000);
+                                Island.show('Praktek Selesai', `${name} Telah Selesai Praktek`, 'info', 'check_circle', 8000);
                             } else if (st.includes('CUTI')) {
-                                Island.show('Jadwal Cuti', `${name} Sedang Tidak Praktek`, 'error', 8000);
+                                Island.show('Jadwal Cuti', `${name} Sedang Tidak Praktek`, 'error', 'flight', 8000);
                             } else if (st.includes('OPERASI')) {
-                                Island.show('Status Dokter', `${name} Sedang Tindakan Operasi`, 'info', 8000);
+                                Island.show('Status Dokter', `${name} Sedang Tindakan Operasi`, 'info', 'medical_services', 8000);
                             } else if (st.includes('ISTIRAHAT')) {
-                                Island.show('Istirahat', `${name} Sedang Istirahat`, 'warn', 8000);
+                                Island.show('Istirahat', `${name} Sedang Istirahat`, 'warn', 'coffee', 8000);
                             } else if (st.includes('BUKA')) {
-                                Island.show('Praktek Dibuka', `${name} Mulai Melayani Pasien`, 'success', 8000);
+                                Island.show('Praktek Dibuka', `${name} Mulai Melayani Pasien`, 'success', 'door_front', 8000);
                             }
                         }
                     }
