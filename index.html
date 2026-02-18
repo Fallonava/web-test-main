@@ -1148,6 +1148,124 @@
         /* ===== THEMES (Overridden by root var logic for simplicity in this proactive mode) ===== */
         /* Using pure dark mode standard for "Professional Display" look */
 
+        /* ===== MOBILE RESPONSIVE (Smartphone) ===== */
+        @media (max-width: 768px) {
+
+            html,
+            body {
+                overflow-y: auto !important;
+                /* Allow native scrolling */
+                height: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .app-container {
+                height: auto !important;
+                min-height: 100vh;
+                flex-direction: column;
+                /* Stack vertically */
+                padding: 12px;
+                gap: 24px;
+                overflow: visible;
+            }
+
+            /* Header Adjustments */
+            .header {
+                padding: 0 4px;
+                margin-bottom: 12px;
+            }
+
+            .header .brand {
+                gap: 12px;
+            }
+
+            .logo-box {
+                width: 40px;
+                height: 40px;
+            }
+
+            .title-group h1 {
+                font-size: 16px;
+            }
+
+            /* Sidebar becomes top section */
+            .sidebar-panel {
+                flex: none;
+                width: 100%;
+                max-width: none;
+                margin-right: 0;
+                margin-bottom: 16px;
+                position: relative;
+                z-index: 20;
+            }
+
+            .sidebar-panel .island-header {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                background: var(--card-bg);
+                /* Ensure visibility when sticky */
+                backdrop-filter: blur(10px);
+            }
+
+            /* Content Stack */
+            .content {
+                flex-direction: column;
+                height: auto !important;
+                gap: 24px;
+                overflow: visible;
+            }
+
+            /* Remove Island Scroll Masks/Limits */
+            .island {
+                flex: none;
+                /* Auto height */
+                height: auto !important;
+                overflow: visible;
+                background: transparent;
+                /* Cleaner look on mobile */
+                box-shadow: none;
+                border: none;
+            }
+
+            .island-header {
+                background: var(--card-bg);
+                border-radius: 16px;
+                margin-bottom: 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .scroll-mask {
+                mask-image: none !important;
+                -webkit-mask-image: none !important;
+                overflow: visible;
+                height: auto !important;
+            }
+
+            .scroller {
+                padding: 0;
+                /* Remove internal padding */
+                gap: 12px;
+                overflow: visible;
+                transform: none !important;
+                /* Disable JS transform */
+            }
+
+            /* Footer */
+            .footer {
+                position: sticky;
+                bottom: 12px;
+                z-index: 100;
+                margin-top: auto;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            /* Hide non-critical elements */
+            .bg-orb {
+                opacity: 0.3;
+            }
+        }
+
         /* ===== OPTIMASI RESOLUSI 962x541 (Smart TV / Display Kiosk) ===== */
         @media (max-width: 1024px) and (max-height: 600px) {
 
@@ -1922,9 +2040,15 @@
             }
         }
 
-        const s1 = new SmoothScroller('scrollBedah');
-        const s2 = new SmoothScroller('scrollNonBedah');
-        const s3 = new SmoothScroller('scrollSidebar');
+        const isMobile = window.innerWidth <= 768;
+
+        let s1, s2, s3;
+
+        if (!isMobile) {
+            s1 = new SmoothScroller('scrollBedah');
+            s2 = new SmoothScroller('scrollNonBedah');
+            s3 = new SmoothScroller('scrollSidebar');
+        }
 
 
         // Dynamic Island Controller (with Queue)
@@ -2080,7 +2204,9 @@
 
                 await this.fetch();
                 this.updateInfoBox();
-                s1.start(); s2.start(); s3.start();
+                if (!isMobile) {
+                    s1.start(); s2.start(); s3.start();
+                }
                 setInterval(() => this.fetch(), CFG.POLL_MS);
                 setInterval(() => this.updateInfoBox(), 8000); // Ganti info tiap 8 detik
 
@@ -2411,9 +2537,11 @@
                 $('countSidebar').textContent = group.SidebarPenuh.length + group.SidebarCuti.length;
 
                 // Only reset scroller if list structure changed (avoid jumpiness on simple updates)
-                if (changed1) { s1.reset(); requestAnimationFrame(() => s1.updateMetrics()); }
-                if (changed2) { s2.reset(); requestAnimationFrame(() => s2.updateMetrics()); }
-                if (changed3) { s3.reset(); requestAnimationFrame(() => s3.updateMetrics()); }
+                if (!isMobile) {
+                    if (changed1) { s1.reset(); requestAnimationFrame(() => s1.updateMetrics()); }
+                    if (changed2) { s2.reset(); requestAnimationFrame(() => s2.updateMetrics()); }
+                    if (changed3) { s3.reset(); requestAnimationFrame(() => s3.updateMetrics()); }
+                }
             },
 
             // Render sidebar dengan section header terpisah
