@@ -2287,6 +2287,12 @@
             async init() {
                 Island.init(); // Initialize Dynamic Island
 
+                // --- TRICK AUTOPLAY AUDIO WEBOS SMART TV (LG) ---
+                // WebOS TV PASTI akan mematikan paksa suara (mute) iframe atau video pihak ketiga (seperti streamable) 
+                // jika halaman dibuka otomatis (seperti dari server/live-server) TANPA PERNAH ADA interaksi user.
+                // KITA KEMBALIKAN TOMBOL "UNLOCK" YANG WAJIB DIKLIK 1 KALI OLEH TEKNISI TIAP PAGI:
+                this._createUnlockAudioOverlay();
+
                 // Greeting based on time
                 const h = new Date().getHours();
                 const greeting = h < 11 ? 'Selamat Pagi' : h < 15 ? 'Selamat Siang' : h < 18 ? 'Selamat Sore' : 'Selamat Malam';
@@ -2363,11 +2369,10 @@
                 const container = $('adVideoContainer');
                 if (!modal || !container) return;
 
-                // Pendekatan Terbaik & Paling Stabil (Tanpa Error Native / Websocket Issue)
-                // Kita gunakan ulang Iframe (Muted = 1 untuk lolos blokir AutoPlay Chrome TV).
-                // Karena panjang iklan ini (Streamable ewfmo8) adalah *Kira-Kira* 14 detik,
-                // Kita akan Hardcode timer 16 Detik untuk Auto-Close secara paksa (Aman & Tidak Tergantung API luar yang diblokir).
-                container.innerHTML = `<iframe id="streamablePlayer" src="https://streamable.com/e/ewfmo8?autoplay=1&nocontrols=1&muted=1" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;border:none;pointer-events:none;"></iframe>`;
+                // Pendekatan Untuk WebOS:
+                // Kita lepaskan parameter `muted=1` agar Streamable dibiarkan bersuara (KARENA kita sudah menipu WebOS dengan Layar Biru Audio Unlock).
+                // Kita tambahkan parameter `volume=100` bawaan Streamable API
+                container.innerHTML = `<iframe id="streamablePlayer" src="https://streamable.com/e/ewfmo8?autoplay=1&nocontrols=1" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;border:none;pointer-events:none;"></iframe>`;
 
                 modal.classList.add('show');
                 Island.show('Informasi', 'Iklan Layanan Masyarakat', 'info', 'play_circle', 5000);
@@ -2431,6 +2436,47 @@
                 } finally {
                     this._isFetching = false;
                 }
+            },
+
+            _createUnlockAudioOverlay() {
+                // Trik spesifik WebOS TV (LG): HARUS ada User Interaction (Pointer / Remote Click) agar DOM Audio Context diperbolehkan berdenting.
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed; inset: 0; z-index: 99999;
+                    background: transparent; padding: 20px;
+                    display: flex; align-items: flex-end; justify-content: flex-end;
+                `;
+                overlay.innerHTML = `
+                    <button id="unlockSoundBtn" style="
+                        background: #0A84FF; color: white; border:none; cursor: pointer;
+                        padding: 12px 24px; border-radius: 12px; font-weight: bold;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.5); font-size: 14px;
+                        animation: pulse-bg 2s infinite; outline:none;
+                    ">
+                        KLIK UNTUK MENGAKTIFKAN SUARA IKLAN (WEB OS)
+                    </button>
+                `;
+
+                const unlockAudio = () => {
+                    // Pancingan Audio Context untuk menjebol dinding pertahanan WebOS TV Browser
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        const audioCtx = new AudioContext();
+                        audioCtx.resume();
+                    }
+                    try {
+                        let audio = new Audio();
+                        audio.play().catch(() => { });
+                    } catch (e) { }
+
+                    overlay.remove();
+                    Island.show('Sistem TV', 'Akses Suara Diaktifkan', 'success', 'volume_up', 3000);
+                };
+
+                overlay.querySelector('#unlockSoundBtn').addEventListener('click', unlockAudio);
+                // Biarkan orang klik sembarang tempat memakai pointer/remote-nya:
+                overlay.addEventListener('click', unlockAudio);
+                document.body.appendChild(overlay);
             },
 
             _detectChanges(data) {
