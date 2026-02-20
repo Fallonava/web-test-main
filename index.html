@@ -1621,10 +1621,90 @@
                 padding: 2px 5px;
             }
         }
+
+        /* ===== ADVERTISEMENT MODAL ===== */
+        .ad-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .ad-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .ad-content {
+            width: 85%;
+            max-width: 900px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+            transform: scale(0.9);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+        }
+
+        .ad-modal.show .ad-content {
+            transform: scale(1);
+        }
+
+        .ad-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ad-close:hover {
+            background: rgba(255, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ad-modal {
+                backdrop-filter: none;
+                background: #000;
+            }
+
+            .ad-content {
+                transform: none;
+                transition: none;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- ADVERTISEMENT MODAL -->
+    <div id="adModal" class="ad-modal">
+        <div class="ad-content">
+            <button class="ad-close" onclick="App.closeAd()"><span class="material-icons-round">close</span></button>
+            <div id="adVideoContainer"
+                style="width:100%; height:100%; border-radius: 24px; overflow: hidden; position: relative;"></div>
+        </div>
+    </div>
+
     <div class="app-bg">
         <div class="bg-orb orb1"></div>
         <div class="bg-orb orb2"></div>
@@ -2171,6 +2251,18 @@
         const App = {
             _prevDoctors: {}, // Track previous doctor states for change detection
             _greetSent: {},   // Track which greetings have been sent today
+
+            // Jadwal tayang Iklan Layanan Masyarakat (Jam & Menit)
+            _adSchedules: [
+                { h: 8, m: 0 },
+                { h: 10, m: 0 },
+                { h: 12, m: 30 },
+                { h: 14, m: 0 },
+                { h: 15, m: 30 }
+            ],
+            _adShownToday: {},
+            _adTimer: null,
+
             _customMsgIdx: 0,
             _customMsgs: [
                 { title: 'Info', text: 'Terimakasih sudah menunggu 🙏' },
@@ -2193,14 +2285,20 @@
 
             async init() {
                 Island.init(); // Initialize Dynamic Island
+
                 // Greeting based on time
                 const h = new Date().getHours();
                 const greeting = h < 11 ? 'Selamat Pagi' : h < 15 ? 'Selamat Siang' : h < 18 ? 'Selamat Sore' : 'Selamat Malam';
                 Island.show('PETUGAS PENDAFTARAN', greeting + ' 👋', 'success', 3000);
 
+                // --- DEMO PREVIEW IKLAN ---
+                // Iklan akan muncul 3 detik setelah halaman dibuka agar Anda bisa melihat contohnya
+                setTimeout(() => this.showAd(), 3000);
+
                 this.clock(); setInterval(() => this.clock(), 1000);
                 this.updateTheme(); setInterval(() => this.updateTheme(), 60000);
                 this.skel();
+
 
                 await this.fetch();
                 this.updateInfoBox();
@@ -2245,6 +2343,51 @@
                         if (h === 18) Island.show('Sore', 'Selamat Sore 🌇', 'info', 4000);
                     }
                 }
+
+                // Cek jadwal iklan layanan masyarakat
+                if (s === 0) {
+                    const isAdTime = this._adSchedules.some(sch => sch.h === h && sch.m === m);
+                    if (isAdTime) {
+                        const adKey = `ad_${h}_${m}`;
+                        if (!this._adShownToday[adKey]) {
+                            this._adShownToday[adKey] = true;
+                            this.showAd();
+                        }
+                    }
+                }
+            },
+
+            showAd() {
+                const modal = $('adModal');
+                const container = $('adVideoContainer');
+                if (!modal || !container) return;
+
+                // Pendekatan Terbaik & Paling Stabil (Tanpa Error Native / Websocket Issue)
+                // Kita gunakan ulang Iframe (Muted = 1 untuk lolos blokir AutoPlay Chrome TV).
+                // Karena panjang iklan ini (Streamable ewfmo8) adalah *Kira-Kira* 14 detik,
+                // Kita akan Hardcode timer 16 Detik untuk Auto-Close secara paksa (Aman & Tidak Tergantung API luar yang diblokir).
+                container.innerHTML = `<iframe id="streamablePlayer" src="https://streamable.com/e/ewfmo8?autoplay=1&nocontrols=1&muted=1" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;border:none;pointer-events:none;"></iframe>`;
+
+                modal.classList.add('show');
+                Island.show('Informasi', 'Iklan Layanan Masyarakat', 'info', 'play_circle', 5000);
+
+                // Set timer TEPAT 15 Detik otomatis TUTUP (Durasi video + 1 detik toleransi)
+                if (this._adTimer) clearTimeout(this._adTimer);
+                this._adTimer = setTimeout(() => this.closeAd(), 15000);
+            },
+
+            closeAd() {
+                const modal = $('adModal');
+                const container = $('adVideoContainer');
+                if (!modal) return;
+
+                modal.classList.remove('show');
+                if (this._adTimer) clearTimeout(this._adTimer);
+
+                // Hapus video setelah transisi CSS selesai (0.5s) agar video berhenti bermain di background otomatis
+                setTimeout(() => {
+                    if (container) container.innerHTML = '';
+                }, 500);
             },
 
             updateTheme() {
