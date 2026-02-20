@@ -364,11 +364,11 @@
         }
 
         .sidebar-panel .doc-name {
-            color: #1d1d1f !important;
+            color: var(--text-primary) !important;
         }
 
         .sidebar-panel .doc-spec {
-            color: rgba(0, 0, 0, 0.6) !important;
+            color: var(--text-secondary) !important;
             margin-top: 1px;
         }
 
@@ -407,18 +407,18 @@
         }
 
         .sidebar-panel .island-badge {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
+            background: rgba(125, 125, 125, 0.15);
+            color: var(--text-primary);
         }
 
         .sidebar-panel .platter:hover {
-            background: rgba(0, 0, 0, 0.04);
+            background: rgba(125, 125, 125, 0.05);
         }
 
         .sidebar-panel .platter.active {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            background: #ffffff !important;
-            color: #000;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            background: var(--status-bg) !important;
+            color: var(--text-primary);
         }
 
         /* Active Accent Indicator for Sidebar */
@@ -702,9 +702,10 @@
 
         .platter.active {
             z-index: 100;
-            background: #1c1c1e !important;
+            /* Background disesuaikan menggunakan warna transparan dari status saat itu */
+            background: var(--status-bg) !important;
             border: 1px solid var(--status-color) !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
             padding-bottom: 2px;
         }
 
@@ -805,7 +806,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #30D158;
+            background: var(--status-color);
             color: white;
             padding: 6px 14px;
             border-radius: 20px;
