@@ -1694,19 +1694,20 @@
             }
         }
 
-        /* ===== BREAK TIME MODAL ===== */
+        /* ===== APPLE 2026 BREAK MODAL ===== */
         .break-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
             z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .break-modal.show {
@@ -1715,62 +1716,183 @@
         }
 
         .break-content {
-            width: 85%;
-            max-width: 1200px;
-            aspect-ratio: 16 / 9;
-            background: #1a1a1c;
-            border-radius: 24px;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-            transform: scale(0.9);
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 88%;
+            max-width: 1400px;
+            aspect-ratio: 21 / 9;
+            /* Cinematic ratio for modern look */
+            border-radius: 40px;
+            /* Ultra-rounded corners */
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
         }
 
-        .break-content img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .dynamic-break-bg {
+            position: absolute;
+            inset: -50%;
+            /* Oversize to hide animation edges */
+            z-index: 1;
+            background-size: 300% 300%;
+            animation: apple-mesh-flow 20s ease-in-out infinite alternate;
+            opacity: 0.9;
+            transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: blur(80px);
+            /* Deep blur for mesh gradient effect */
         }
 
+        .break-siang {
+            background: radial-gradient(circle at 20% 30%, rgba(10, 132, 255, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(48, 209, 88, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 200, 255, 0.6) 0%, transparent 50%);
+            background-color: #05101a;
+        }
+
+        .break-sore {
+            background: radial-gradient(circle at 80% 20%, rgba(255, 159, 10, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(255, 69, 58, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(191, 90, 242, 0.6) 0%, transparent 50%);
+            background-color: #1a0505;
+        }
+
+        .break-malam {
+            background: radial-gradient(circle at 10% 90%, rgba(94, 92, 230, 0.8) 0%, transparent 60%),
+                radial-gradient(circle at 90% 10%, rgba(10, 132, 255, 0.6) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(50, 20, 100, 0.8) 0%, transparent 50%);
+            background-color: #020205;
+        }
+
+        @keyframes apple-mesh-flow {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.1);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        /* Glassmorphism Text Container */
+        .break-text-container {
+            position: absolute;
+            z-index: 10;
+            top: 50%;
+            left: 6%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: left;
+            padding: 40px;
+            max-width: 60%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 2px 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .break-text-container h1 {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 82px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            /* Apple subtle text gradient */
+            background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .break-text-container p {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 28px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            line-height: 1.4;
+            letter-spacing: -0.01em;
+        }
+
+        /* Responsive Break Modal */
+        @media (max-width: 1024px) {
+            .break-text-container {
+                left: 5%;
+                padding: 32px;
+                max-width: 80%;
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            .break-text-container h1 {
+                font-size: 48px;
+            }
+
+            .break-text-container p {
+                font-size: 20px;
+            }
+
+            .break-countdown-timer {
+                font-size: 48px;
+            }
+
+            .break-countdown-container {
+                bottom: 32px;
+                right: 32px;
+                padding: 24px 32px;
+                border-radius: 28px;
+            }
+        }
+
+        /* Glassmorphism Timer Box */
         .break-countdown-container {
             position: absolute;
-            bottom: 48px;
-            right: 48px;
+            bottom: 60px;
+            right: 60px;
             background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 24px 40px;
-            border-radius: 28px;
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 36px;
+            padding: 32px 48px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3), inset 0 2px 20px rgba(255, 255, 255, 0.05);
             z-index: 10;
         }
 
         .break-countdown-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.25em;
-            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.3em;
+            margin-bottom: 12px;
             text-transform: uppercase;
         }
 
         .break-countdown-timer {
-            font-size: 56px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 72px;
+            font-weight: 600;
+            /* Regular weight for modern digital look */
+            color: #ffffff;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
             line-height: 1;
-            filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.2));
+            text-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
         .break-modal.show .break-content {
@@ -1804,8 +1926,15 @@
     <!-- BREAK TIME MODAL -->
     <div id="breakModal" class="break-modal">
         <div class="break-content">
-            <!-- Ganti src gambar di bawah ini dengan URL atau folder gambar istirahat Anda -->
-            <img src="./istirahat.png" alt="Waktu Istirahat">
+            <!-- Dynamic Background -->
+            <div class="dynamic-break-bg" id="dynamicBreakBg"></div>
+
+            <!-- Dynamic Text -->
+            <div class="break-text-container">
+                <h1 id="breakTitle">Waktu Istirahat</h1>
+                <p id="breakSubtitle">Silakan Menunggu</p>
+            </div>
+
             <div class="break-countdown-container">
                 <div class="break-countdown-label">WAKTU TERSISA</div>
                 <div class="break-countdown-timer" id="breakCountdownTimer">59:59</div>
@@ -2376,9 +2505,9 @@
 
             // Konfigurasi Jadwal Istirahat Dinamis
             _breakSchedules: [
-                { id: 'siang', startH: 12, startM: 0, endH: 13, endM: 0, img: './istirahat.png', label: 'Jam Istirahat' },
-                { id: 'sore', startH: 15, startM: 0, endH: 15, endM: 40, img: './istirahat_sore.png', label: 'Istirahat Sore' },
-                { id: 'malam', startH: 18, startM: 0, endH: 18, endM: 45, img: './istirahat_malam.png', label: 'Istirahat Malam' }
+                { id: 'siang', startH: 12, startM: 0, endH: 13, endM: 0, subtitle: 'Layanan pendaftaran ditutup sementara. Kami akan kembali pukul 13:00 WIB.', label: 'Jam Istirahat Siang' },
+                { id: 'sore', startH: 15, startM: 0, endH: 15, endM: 40, subtitle: 'Waktu pergantian shift sore petugas. Mohon bersabar menunggu sebentar.', label: 'Istirahat Sore' },
+                { id: 'malam', startH: 18, startM: 0, endH: 18, endM: 45, subtitle: 'Waktu istirahat dan ibadah malam. Layanan akan segera dilanjutkan.', label: 'Istirahat Malam' }
             ],
 
             _customMsgIdx: 0,
@@ -2454,7 +2583,6 @@
 
                 // Dynamic Break Time Logic
                 const breakModal = document.getElementById('breakModal');
-                const breakImg = breakModal ? breakModal.querySelector('img') : null;
                 const timerEl = document.getElementById('breakCountdownTimer');
 
                 // Cari jadwal istirahat yang sedang aktif saat ini
@@ -2474,7 +2602,18 @@
                     // Jika baru saja masuk break
                     if (this._activeBreakId !== activeBreak.id) {
                         this._activeBreakId = activeBreak.id;
-                        if (breakImg) breakImg.src = activeBreak.img;
+
+                        // Update background class
+                        const bgEl = document.getElementById('dynamicBreakBg');
+                        if (bgEl) bgEl.className = 'dynamic-break-bg break-' + activeBreak.id;
+
+                        // Update Title & Subtitle
+                        const titleEl = document.getElementById('breakTitle');
+                        if (titleEl) titleEl.textContent = activeBreak.label;
+
+                        const subtitleEl = document.getElementById('breakSubtitle');
+                        if (subtitleEl) subtitleEl.textContent = activeBreak.subtitle;
+
                         if (breakModal) breakModal.classList.add('show');
                         Island.show('Istirahat', `Sedang ${activeBreak.label} 🕐`, 'info', 'coffee', 10000);
                     }
