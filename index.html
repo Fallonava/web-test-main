@@ -2253,13 +2253,15 @@
             _prevDoctors: {}, // Track previous doctor states for change detection
             _greetSent: {},   // Track which greetings have been sent today
 
-            // Jadwal tayang Iklan Layanan Masyarakat (Jam & Menit)
+            // Jadwal tayang Iklan Layanan Masyarakat (Optimal untuk Alur Rumah Sakit Tipe C/B)
+            // Didesain untuk MENGHINDARI jam sibuk (07:00 - 09:30) saat pasien berkerumun melihat layar.
+            // Didesain untuk MENGHINDARI jam 12:00 (karena bentrok dengan Notifikasi Jam Istirahat Petugas).
             _adSchedules: [
-                { h: 8, m: 0 },
-                { h: 10, m: 0 },
-                { h: 12, m: 30 },
-                { h: 14, m: 0 },
-                { h: 15, m: 30 }
+                { h: 7, m: 15 },  // Pagi awal: mengedukasi pasien yang baru datang / BPJS
+                { h: 10, m: 30 }, // Pertengahan pagi: saat ritme loket mulai stabil / agak lengang
+                { h: 11, m: 45 }, // Menjelang istirahat siang (penutup sesi pagi)
+                { h: 13, m: 15 }, // Pembukaan poli siang / sesudah istirahat
+                { h: 14, m: 45 }  // Sore hari menuju poli usai
             ],
             _adShownToday: {},
             _adTimer: null,
