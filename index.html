@@ -2372,7 +2372,14 @@
             ],
             _adShownToday: {},
             _adTimer: null,
-            _isBreakActive: false,
+            _activeBreakId: null,
+
+            // Konfigurasi Jadwal Istirahat Dinamis
+            _breakSchedules: [
+                { id: 'siang', startH: 12, startM: 0, endH: 13, endM: 0, img: './istirahat.png', label: 'Jam Istirahat' },
+                { id: 'sore', startH: 15, startM: 0, endH: 15, endM: 40, img: 'https://placehold.co/1920x1080/ffedd5/ea580c?text=WAKTU+ISTIRAHAT+SORE%0A15:00+-+15:40', label: 'Istirahat Sore' },
+                { id: 'malam', startH: 18, startM: 0, endH: 18, endM: 45, img: 'https://placehold.co/1920x1080/172554/93c5fd?text=WAKTU+ISTIRAHAT+MALAM%0A(BUKA+PUASA)%0A18:00+-+18:45', label: 'Istirahat Malam' }
+            ],
 
             _customMsgIdx: 0,
             _customMsgs: [
@@ -2445,32 +2452,55 @@
                     this._customMsgIdx = (this._customMsgIdx + 1) % this._customMsgs.length;
                 }
 
-                // Break Time Logic (12:00 - 13:00)
+                // Dynamic Break Time Logic
                 const breakModal = document.getElementById('breakModal');
-                if (h === 12) {
-                    if (!this._isBreakActive) {
-                        this._isBreakActive = true;
-                        if (breakModal) breakModal.classList.add('show');
-                        Island.show('Istirahat', 'Sedang Jam Istirahat 🕐', 'info', 'coffee', 10000);
+                const breakImg = breakModal ? breakModal.querySelector('img') : null;
+                const timerEl = document.getElementById('breakCountdownTimer');
+
+                // Cari jadwal istirahat yang sedang aktif saat ini
+                const currentMins = (h * 60) + m;
+                let activeBreak = null;
+
+                for (const b of this._breakSchedules) {
+                    const startMins = (b.startH * 60) + b.startM;
+                    const endMins = (b.endH * 60) + b.endM;
+                    if (currentMins >= startMins && currentMins < endMins) {
+                        activeBreak = b;
+                        break;
                     }
+                }
+
+                if (activeBreak) {
+                    // Jika baru saja masuk break
+                    if (this._activeBreakId !== activeBreak.id) {
+                        this._activeBreakId = activeBreak.id;
+                        if (breakImg) breakImg.src = activeBreak.img;
+                        if (breakModal) breakModal.classList.add('show');
+                        Island.show('Istirahat', `Sedang ${activeBreak.label} 🕐`, 'info', 'coffee', 10000);
+                    }
+
+                    // Notifikasi island rutin selama istirahat
                     if (m % 10 === 0 && s === 0) {
-                        Island.show('Istirahat', 'Sedang Jam Istirahat 🕐', 'info', 'coffee', 10000);
+                        Island.show('Istirahat', `Sedang ${activeBreak.label} 🕐`, 'info', 'coffee', 10000);
                     }
 
                     // Update Countdown
-                    const timerEl = document.getElementById('breakCountdownTimer');
                     if (timerEl) {
-                        // Sisa waktu hingga 13:00
-                        const remainingMinutes = 59 - m;
-                        const remainingSeconds = 59 - s;
+                        const endMins = (activeBreak.endH * 60) + activeBreak.endM;
+                        // Sisa waktu total dalam hitungan detik
+                        const diffSeconds = ((endMins - currentMins) * 60) - s;
+
+                        const remainingMinutes = Math.floor(diffSeconds / 60);
+                        const remainingSeconds = diffSeconds % 60;
 
                         const mm = remainingMinutes.toString().padStart(2, '0');
                         const ss = remainingSeconds.toString().padStart(2, '0');
                         timerEl.textContent = `${mm}:${ss}`;
                     }
                 } else {
-                    if (this._isBreakActive) {
-                        this._isBreakActive = false;
+                    // Tidak ada break aktif
+                    if (this._activeBreakId !== null) {
+                        this._activeBreakId = null;
                         if (breakModal) breakModal.classList.remove('show');
                     }
                 }
