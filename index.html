@@ -1910,6 +1910,49 @@
                 transition: none;
             }
         }
+
+        /* ===== SMART TV FALLBACKS (WebOS/Tizen) ===== */
+        /* Menonaktifkan efek kaca dan animasi blur yang berat untuk stabilisasi framerate */
+        body.tv-optimized .break-modal {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.tv-optimized .break-content {
+            background: #111;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        body.tv-optimized .dynamic-break-bg {
+            animation: none !important;
+            filter: none !important;
+            opacity: 1;
+        }
+
+        body.tv-optimized .break-siang {
+            background: linear-gradient(135deg, #05101a 0%, #0A84FF 100%);
+        }
+
+        body.tv-optimized .break-sore {
+            background: linear-gradient(135deg, #1a0505 0%, #FF9F0A 100%);
+        }
+
+        body.tv-optimized .break-malam {
+            background: linear-gradient(135deg, #020205 0%, #5E5CE6 100%);
+        }
+
+        body.tv-optimized .break-text-container,
+        body.tv-optimized .break-countdown-container {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 
@@ -2532,6 +2575,12 @@
 
             async init() {
                 Island.init(); // Initialize Dynamic Island
+
+                // --- SMART TV OPTIMIZATION DETECTOR ---
+                const ua = navigator.userAgent.toLowerCase();
+                if (ua.includes('webos') || ua.includes('tizen') || ua.includes('smarttv') || ua.includes('netcast')) {
+                    document.body.classList.add('tv-optimized');
+                }
 
                 // --- TRICK AUTOPLAY AUDIO WEBOS SMART TV (LG) ---
                 // WebOS TV PASTI akan mematikan paksa suara (mute) iframe atau video pihak ketiga (seperti streamable) 
